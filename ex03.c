@@ -9,86 +9,81 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef struct caixa
-{
+typedef struct no {
     int peso;
-    struct caixa *prox;
-    struct caixa *ant;
+    struct no *prox;
+} NO;
 
-} CX;
+typedef struct Pilha {
+    NO *inicio;
+    NO *tam;
+}PILHA;
 
-CX *topo_A = NULL;
-CX *topo_B = NULL;
-CX *topo_C = NULL;
+void add(int peso, PILHA *p){
 
-int tam_a = 0;
-int tam_b = 0;
-int tam_c = 0;
+    NO *novo = malloc(sizeof(NO));
+    novo->peso = peso;
+    novo->prox = NULL;
 
-void empilhar(int peso){
-    CX *novaCaixa = malloc(sizeof(CX));
-    novaCaixa->peso = peso;
-    novaCaixa->prox = NULL;
-    novaCaixa->ant = NULL;
-
-    if (topo_A == NULL) {
-        topo_A = novaCaixa;
-        tam_a++;
+    if(p->inicio == NULL){
+        p->inicio = novo;
+    } else {
+        novo->prox = p->inicio;
+        p->inicio = novo;
     }
-    else if (topo_A->peso >= novaCaixa->peso) {
-        novaCaixa->prox = topo_A;
-        topo_A->ant = novaCaixa;
-        topo_A = novaCaixa;
-        tam_a++;
+    p->tam++;
+}
+
+int remover(PILHA *p){
+    NO *lixo = p->inicio;
+    int peso_retorado = -1;
+
+    if(p->inicio != NULL){
+        peso_retorado = p->inicio->peso;
+        p->inicio = p->inicio->prox;
+        free(lixo);
+        p->tam--;
+    }
+    return peso_retorado;
+
+}
+
+PILHA *inicia(){
+    PILHA *p = malloc(sizeof(PILHA));
+    p->inicio = NULL;
+    p->tam = 0;
+}
+
+
+void Select(int pesoNovo){
+
+    PILHA *A = inicia();
+    PILHA *B = inicia();
+    PILHA *C = inicia();
+
+    if(A->inicio->peso == NULL || pesoNovo <= A->inicio->peso  ){
+        add(pesoNovo, A);
     }
     else {
-        // Enquanto existirem caixas em A com peso menor que a nova caixa
-        while (topo_A != NULL && topo_A->peso < novaCaixa->peso) {
-            // Verifica se a caixa do topo de A é maior que 5
-            if (topo_A->peso == 5) {
-                // Move todas as caixas de A para B, exceto a caixa do topo
-                while (topo_A != NULL && topo_A->peso == 5) {
-                }
-            }
-         
-            // Empilha a nova caixa em A
-            novaCaixa->prox = topo_A;
-            topo_A->ant = novaCaixa;
-            topo_A = novaCaixa;
-            tam_a++;
+        
+        if(pesoNovo == 5){
+            int auxValor = remover(A); // 3
+            add(auxValor, C);
+            add(pesoNovo, A);
+        }
+        else if( pesoNovo == 3){
+             int auxValor = remover(A); // 3
+            add(auxValor, B);
+            add(pesoNovo, A);
         }
     }
+    
+    
 }
 
-void imprimir()
-{
-    CX *aux_a = topo_A;
-    CX *aux_b = topo_B;
-    CX *aux_c = topo_C;
-    printf("A - %d, B - %d, C - %d\n", tam_a, tam_b, tam_c);
+int main (){
 
-    for (int i = 0; i < tam_a; i++)
-    {
-        printf("A - Valor = %d\n", aux_a->peso);
-        aux_a = aux_a->prox;
-    }
-    for (int i = 0; i < tam_b; i++)
-    {
-        printf("B - Valor = %d\n", aux_b->peso);
-        aux_b = aux_b->prox;
-    }
-    for (int i = 0; i < tam_c; i++)
-    {
-        printf("C - Valor = %d\n", aux_c->peso);
-        aux_c = aux_c->prox;
-    }
-}
-
-int main()
-{
-    empilhar(3);
-    empilhar(5);
-    empilhar(5);
-    empilhar(3);
-    imprimir();
+    Select(7);
+    Select(3);
+    Select(5);
 }
